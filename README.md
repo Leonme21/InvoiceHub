@@ -124,7 +124,7 @@ Asegúrate de tener instalado lo siguiente antes de ejecutar el proyecto:
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/InvoiceHub.git
+git clone https://github.com/Leonme21/InvoiceHub
 cd InvoiceHub
 ```
 
