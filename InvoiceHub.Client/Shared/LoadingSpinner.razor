@@ -1,0 +1,36 @@
+<div class="spinner-container">
+    <div class="loader"></div>
+    @if (!string.IsNullOrEmpty(Text))
+    {
+        <span class="spinner-text">@Text</span>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Text { get; set; }
+}
+
+<style>
+    .spinner-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: var(--spacing-xl);
+    }
+
+    .loader {
+        width: 32px;
+        height: 32px;
+        border: 3px solid hsla(var(--hue-primary), 80%, 60%, 0.2);
+        border-top-color: var(--color-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .spinner-text {
+        margin-top: var(--spacing-sm);
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+</style>

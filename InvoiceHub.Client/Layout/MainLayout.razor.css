@@ -1,0 +1,243 @@
+﻿.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* =========================
+   SIDEBAR
+   ========================= */
+
+.sidebar {
+    width: 260px;
+    min-width: 260px;
+    min-height: 100vh;
+    background: hsla(220, 15%, 12%, 0.92);
+    backdrop-filter: blur(20px);
+    border-right: var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    z-index: 10;
+}
+
+
+.sidebar-header {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-lg);
+    border-bottom: var(--border-subtle);
+}
+
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    text-decoration: none;
+}
+
+    .brand:hover {
+        color: white;
+        text-decoration: none;
+    }
+
+
+.logo-circle {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient( 135deg, var(--color-primary), hsl(var(--hue-secondary), 70%, 55%) );
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    padding: 7px;
+    box-shadow: var(--shadow-glow);
+}
+
+
+    .logo-circle svg {
+        width: 100%;
+        height: 100%;
+    }
+
+
+.brand-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.03em;
+}
+
+
+.sidebar-menu {
+    flex: 1;
+    overflow-y: auto;
+}
+
+
+/* =========================
+   CONTENIDO
+   ========================= */
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+
+/* =========================
+   TOP BAR
+   ========================= */
+
+.top-bar {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 var(--spacing-xl);
+    border-radius: 0;
+    border-left: none;
+    border-top: none;
+    border-right: none;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+
+.user-profile {
+    display: flex;
+    align-items: center;
+}
+
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e5e7eb;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: var(--border-subtle);
+}
+
+
+/* =========================
+   HAMBURGER BUTTON (hidden on desktop)
+   ========================= */
+
+.hamburger-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--border-radius-sm);
+    transition: background-color 0.2s ease, color 0.2s ease;
+    margin-right: auto;
+}
+
+.hamburger-btn:hover {
+    background: hsla(0, 0%, 100%, 0.08);
+    color: var(--text-primary);
+}
+
+
+/* =========================
+   SIDEBAR BACKDROP (hidden on desktop)
+   ========================= */
+
+.sidebar-backdrop {
+    display: none;
+}
+
+
+/* =========================
+   PAGINA
+   ========================= */
+
+.content-area {
+    flex: 1;
+    padding: var(--spacing-xl);
+    overflow-x: hidden;
+}
+
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 768px) {
+
+    .app-layout {
+        flex-direction: column;
+    }
+
+    /* Sidebar becomes a fixed drawer that slides in from the left */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        min-width: 280px;
+        height: 100vh;
+        min-height: 100vh;
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-right: var(--border-subtle);
+    }
+
+    .sidebar.sidebar-open {
+        transform: translateX(0);
+    }
+
+    .sidebar-header {
+        height: 64px;
+    }
+
+    /* Show the hamburger button */
+    .hamburger-btn {
+        display: flex;
+    }
+
+    /* Show the top bar */
+    .top-bar {
+        display: flex;
+        height: 60px;
+        padding: 0 var(--spacing-md);
+    }
+
+    /* Backdrop overlay */
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    .content-area {
+        padding: var(--spacing-md);
+    }
+}

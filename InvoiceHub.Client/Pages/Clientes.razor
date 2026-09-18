@@ -1,0 +1,893 @@
+@page "/clientes"
+
+@using InvoiceHub.Client.Models
+@using InvoiceHub.Client.Services
+@using InvoiceHub.Client.Shared
+@using System.ComponentModel.DataAnnotations
+@inject InvoiceApiService InvoiceService
+
+@inject ClientApiService ClientService
+
+<PageTitle>Clientes | InvoiceHub</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1>Directorio de Clientes</h1>
+        <p class="text-secondary">
+            Gestiona tu cartera de clientes.
+        </p>
+    </div>
+
+    <button class="btn btn-primary"
+            @onclick="OpenCreateModal">
+
+        <svg viewBox="0 0 24 24"
+             width="18"
+             height="18"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2">
+
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+
+        </svg>
+
+        Nuevo Cliente
+    </button>
+</div>
+
+
+<div class="client-filters">
+
+
+    <div class="search-input">
+
+        <svg viewBox="0 0 24 24"
+             width="18"
+             height="18"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2">
+
+            <circle cx="11" cy="11" r="8"></circle>
+
+            <line x1="21"
+                  y1="21"
+                  x2="16.65"
+                  y2="16.65">
+            </line>
+
+        </svg>
+
+        <input type="text"
+               class="form-control"
+               placeholder="Buscar por nombre o documento..."
+               @bind="SearchTerm"
+               @bind:after="PerformSearch" />
+
+    </div>
+
+
+
+    <select class="form-control status-filter"
+            @onchange="ChangeStatusFilter">
+
+        <option value="active">
+            Activos
+        </option>
+
+        <option value="inactive">
+            Inactivos
+        </option>
+
+        <option value="all">
+            Todos
+        </option>
+
+    </select>
+
+</div>
+
+
+@if (isLoading)
+{
+    <LoadingSpinner Text="Cargando clientes..." />
+}
+else
+{
+    <div class="table-container">
+
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Documento</th>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+
+                    <th style="text-align: right;">
+                        Acciones
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var client in pagedResult.Items)
+                {
+                    <tr>
+
+
+                        <td>
+                            <strong>
+                                @client.Document
+                            </strong>
+                        </td>
+
+
+
+                        <td>
+                            @client.Name
+                        </td>
+
+
+                        <td>
+
+                            @if (client.IsActive)
+                            {
+                                <span class="badge badge-active">
+                                    Activo
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-inactive">
+                                    Inactivo
+                                </span>
+                            }
+
+                        </td>
+
+
+
+                        <td style="text-align: right;">
+
+                            <div class="actions-cell actions-right">
+
+                                @if (client.IsActive)
+                                {
+
+
+                                    <button class="btn-icon"
+                                            @onclick="() => OpenEditModal(client.Id)"
+                                            title="Editar cliente">
+
+                                        <svg viewBox="0 0 24 24"
+                                             width="18"
+                                             height="18"
+                                             fill="none"
+                                             stroke="var(--color-primary)"
+                                             stroke-width="2">
+
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                            </path>
+
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                            </path>
+
+                                        </svg>
+
+                                    </button>
+
+
+
+                                    <button class="btn-icon"
+                                            @onclick="() => RequestChangeStatus(client, false)"
+                                            title="Desactivar cliente">
+
+                                        <svg viewBox="0 0 24 24"
+                                             width="18"
+                                             height="18"
+                                             fill="none"
+                                             stroke="var(--color-danger)"
+                                             stroke-width="2">
+
+                                            <circle cx="12"
+                                                    cy="12"
+                                                    r="9">
+                                            </circle>
+
+                                            <line x1="8"
+                                                  y1="8"
+                                                  x2="16"
+                                                  y2="16">
+                                            </line>
+
+                                        </svg>
+
+                                    </button>
+                                }
+                                else
+                                {
+
+                                    <button class="btn-icon"
+                                            @onclick="() => RequestChangeStatus(client, true)"
+                                            title="Reactivar cliente">
+
+                                        <svg viewBox="0 0 24 24"
+                                             width="18"
+                                             height="18"
+                                             fill="none"
+                                             stroke="var(--color-success)"
+                                             stroke-width="2">
+
+                                            <polyline points="23 4 23 10 17 10">
+                                            </polyline>
+
+                                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10">
+                                            </path>
+
+                                        </svg>
+
+                                    </button>
+                                }
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                }
+
+
+                @if (!pagedResult.Items.Any())
+                {
+                    <tr>
+
+                        <td colspan="4"
+                            style="
+                                text-align: center;
+                                padding: 2rem;
+                                color: var(--text-muted);
+                            ">
+
+                            @GetEmptyMessage()
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <div class="pagination-wrapper"
+         style="margin-top: 1rem;">
+
+        <div class="pagination-left">
+
+            @if (pagedResult.CurrentPage > 1)
+            {
+                <button class="btn-pagination"
+                        @onclick="() => ChangePage(pagedResult.CurrentPage - 1)">
+
+                    <svg viewBox="0 0 24 24"
+                         width="18"
+                         height="18"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2">
+
+                        <polyline points="15 18 9 12 15 6">
+                        </polyline>
+
+                    </svg>
+
+                    Anterior
+
+                </button>
+            }
+
+        </div>
+
+
+        <div class="pagination-center">
+
+            <span>
+                Página
+                <strong>
+                    @(pagedResult.CurrentPage == 0
+                        ? 1
+                        : pagedResult.CurrentPage)
+                </strong>
+
+                de
+
+                <strong>
+                    @(pagedResult.TotalPages == 0
+                        ? 1
+                        : pagedResult.TotalPages)
+                </strong>
+            </span>
+
+            <span class="text-secondary ml-2">
+                (Total: @pagedResult.TotalCount registros)
+            </span>
+
+        </div>
+
+
+        <div class="pagination-right">
+
+            @if (pagedResult.CurrentPage < pagedResult.TotalPages)
+            {
+                <button class="btn-pagination"
+                        @onclick="() => ChangePage(pagedResult.CurrentPage + 1)">
+
+                    Siguiente
+
+                    <svg viewBox="0 0 24 24"
+                         width="18"
+                         height="18"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2">
+
+                        <polyline points="9 18 15 12 9 6">
+                        </polyline>
+
+                    </svg>
+
+                </button>
+            }
+
+        </div>
+
+    </div>
+}
+
+
+<Modal @bind-IsVisible="isModalVisible"
+       Title="@modalTitle"
+       CloseOnBackgroundClick="false">
+
+    <EditForm Model="clientFormModel"
+              OnValidSubmit="SaveClient"
+              OnInvalidSubmit="ShowValidationError">
+
+        <DataAnnotationsValidator />
+
+
+        <!-- Documento -->
+
+        <div class="form-group">
+
+            <label class="form-label">
+                Documento
+            </label>
+
+            <InputText @bind-Value="clientFormModel.Document"
+                       class="form-control"
+                       disabled="@isEditing"
+                       placeholder="Ej. 123456789" />
+
+            <ValidationMessage For="@(() => clientFormModel.Document)"
+                               class="validation-message" />
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label class="form-label">
+                Nombre Completo
+            </label>
+
+            <InputText @bind-Value="clientFormModel.Name"
+                       class="form-control"
+                       placeholder="Ej. Empresa S.A." />
+
+            <ValidationMessage For="@(() => clientFormModel.Name)"
+                               class="validation-message" />
+
+        </div>
+
+
+        <div class="grid-2">
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Email
+                </label>
+
+                <InputText @bind-Value="clientFormModel.Email"
+                           type="email"
+                           class="form-control" />
+
+                <ValidationMessage For="@(() => clientFormModel.Email)"
+                                   class="validation-message" />
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Teléfono
+                </label>
+
+                <InputNumber @bind-Value="clientFormModel.Phone"
+                             class="form-control" />
+
+                <ValidationMessage For="@(() => clientFormModel.Phone)"
+                                   class="validation-message" />
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label class="form-label">
+                Dirección
+            </label>
+
+            <InputTextArea @bind-Value="clientFormModel.Address"
+                           class="form-control"
+                           rows="2" />
+
+            <ValidationMessage For="@(() => clientFormModel.Address)"
+                               class="validation-message" />
+
+        </div>
+
+        <div class="flex-row justify-end gap-sm mt-4">
+
+            <button type="button"
+                    class="btn"
+                    @onclick="CloseModal">
+
+                Cancelar
+
+            </button>
+
+            <button type="submit"
+                    class="btn btn-primary"
+                    disabled="@isSaving">
+
+                @if (isSaving)
+                {
+                    <span>Guardando...</span>
+                }
+                else
+                {
+                    <span>Guardar</span>
+                }
+
+            </button>
+
+        </div>
+
+    </EditForm>
+
+</Modal>
+
+
+@code {
+
+
+
+    private PagedResult<ClientListResponseDto> pagedResult = new();
+
+    private string SearchTerm { get; set; } = string.Empty;
+
+    private int CurrentPage = 1;
+
+    private int PageSize = 10;
+
+    private bool? ActiveFilter { get; set; } = true;
+
+    private bool isLoading = true;
+
+    private bool isSaving = false;
+
+    private bool isModalVisible = false;
+
+    private bool isEditing = false;
+
+    private string modalTitle = "Nuevo Cliente";
+
+    private ClientFormModel clientFormModel = new();
+
+    private int currentEditingId;
+
+
+
+    [Inject]
+    private SweetAlertService Swal { get; set; } = default!;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+
+        try
+        {
+            pagedResult = await ClientService.GetPagedAsync(
+                SearchTerm,
+                CurrentPage,
+                PageSize,
+                ActiveFilter);
+        }
+        catch
+        {
+            await Swal.ShowErrorToastAsync(
+                "Error al cargar clientes");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+
+    private async Task ChangeStatusFilter(ChangeEventArgs e)
+    {
+        ActiveFilter = e.Value?.ToString() switch
+        {
+            "active" => true,
+            "inactive" => false,
+            "all" => null,
+            _ => true
+        };
+
+        CurrentPage = 1;
+
+        await LoadData();
+    }
+
+
+    private string GetEmptyMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(SearchTerm))
+        {
+            return "No se encontraron clientes con los criterios de búsqueda.";
+        }
+
+        return ActiveFilter switch
+        {
+            true => "No hay clientes activos registrados.",
+            false => "No hay clientes inactivos registrados.",
+            null => "No hay clientes registrados."
+        };
+    }
+
+
+    private void OpenCreateModal()
+    {
+        isEditing = false;
+        currentEditingId = 0;
+        modalTitle = "Nuevo Cliente";
+
+        clientFormModel = new ClientFormModel();
+
+        isModalVisible = true;
+    }
+
+
+    private async Task OpenEditModal(int id)
+    {
+        try
+        {
+            var detail =
+                await ClientService.GetByIdAsync(id);
+
+            if (detail is null)
+            {
+                await Swal.ShowErrorToastAsync(
+                    "El cliente no existe.");
+
+                return;
+            }
+
+            isEditing = true;
+
+            currentEditingId = id;
+
+            modalTitle = "Editar Cliente";
+
+            clientFormModel = new ClientFormModel
+            {
+                Document = detail.Document,
+                Name = detail.Name,
+                Email = detail.Email,
+                Phone = detail.Phone,
+                Address = detail.Address
+            };
+
+            isModalVisible = true;
+        }
+        catch
+        {
+            await Swal.ShowErrorToastAsync(
+                "Error al cargar los datos del cliente.");
+        }
+    }
+
+    private async Task SaveClient()
+    {
+        isSaving = true;
+
+        try
+        {
+            if (isEditing)
+            {
+                var dto = new UpdateClientDto
+                {
+                    Name = clientFormModel.Name,
+                    Email = clientFormModel.Email,
+                    Phone = clientFormModel.Phone,
+                    Address = clientFormModel.Address,
+                };
+
+                await ClientService.UpdateAsync(
+                    currentEditingId,
+                    dto);
+
+                await Swal.ShowSuccessToastAsync(
+                    "Cliente actualizado correctamente");
+            }
+            else
+            {
+                var dto = new CreateClientDto
+                {
+                    Document = clientFormModel.Document,
+                    Name = clientFormModel.Name,
+                    Email = clientFormModel.Email,
+                    Phone = clientFormModel.Phone,
+                    Address = clientFormModel.Address
+                };
+
+                await ClientService.CreateAsync(dto);
+
+                await Swal.ShowSuccessToastAsync(
+                    "Cliente creado correctamente");
+            }
+
+            CloseModal();
+
+            await LoadData();
+        }
+        catch (ApplicationException ex)
+        {
+            var errorMsg =
+                "El documento ya existe o los datos son inválidos.";
+
+            if (ex.Message.Contains(
+                    "duplicate",
+                    StringComparison.OrdinalIgnoreCase)
+                ||
+                ex.Message.Contains(
+                    "IX_Clients_Document",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                errorMsg =
+                    "Este documento ya está registrado. Puede pertenecer a un cliente inactivo.";
+            }
+            else if (ex.Message.Length < 200)
+            {
+                errorMsg = ex.Message;
+            }
+
+            await Swal.ShowErrorToastAsync(errorMsg);
+        }
+        catch
+        {
+            await Swal.ShowErrorToastAsync(
+                "Ocurrió un error al guardar en el servidor.");
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+
+    private async Task RequestChangeStatus(
+    ClientListResponseDto client,
+    bool newStatus)
+    {
+        string title;
+        string message;
+        string buttonText;
+
+        if (newStatus)
+        {
+            title = "¿Reactivar cliente?";
+
+            message =
+                $"¿Deseas reactivar a <b>{client.Name}</b>? " +
+                "Podrá volver a utilizarse en nuevas ventas.";
+
+            buttonText = "Sí, reactivar";
+        }
+        else
+        {
+            title = "¿Desactivar cliente?";
+
+            message =
+                $"¿Deseas desactivar a <b>{client.Name}</b>? " +
+                "No podrá utilizarse en nuevas ventas, " +
+                "pero conservará su historial.";
+
+            var invoices =
+                await InvoiceService.GetByClientIdAsync(client.Id);
+
+            if (invoices.Any())
+            {
+                message +=
+                    $"<br/><br/>⚠️ <b>Atención:</b> " +
+                    $"Este cliente tiene <b>{invoices.Count} factura(s)</b> asociadas. " +
+                    "Estas facturas se conservarán en el historial.";
+
+                message +=
+                    "<div style='" +
+                    "max-height:150px;" +
+                    "overflow-y:auto;" +
+                    "text-align:left;" +
+                    "margin-top:10px;" +
+                    "background:rgba(0,0,0,0.2);" +
+                    "padding:10px;" +
+                    "border-radius:8px;'>";
+
+                foreach (var invoice in invoices)
+                {
+                    message +=
+                        $"• Factura {invoice.InvoiceNumber} " +
+                        $"- <b>${invoice.Total:N2}</b><br/>";
+                }
+
+                message += "</div>";
+            }
+
+            buttonText = "Sí, desactivar";
+        }
+
+        var confirmed = await Swal.ConfirmAsync(
+            title,
+            message,
+            buttonText);
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        await ChangeClientStatus(
+            client.Id,
+            newStatus);
+    }
+
+
+    private async Task ChangeClientStatus(
+        int clientId,
+        bool isActive)
+    {
+        try
+        {
+            await ClientService.ChangeStatusAsync(
+                clientId,
+                isActive);
+
+            await Swal.ShowSuccessToastAsync(
+                isActive
+                    ? "Cliente reactivado correctamente"
+                    : "Cliente desactivado correctamente");
+
+            await LoadData();
+        }
+        catch (ApplicationException ex)
+        {
+            await Swal.ShowErrorToastAsync(
+                ex.Message);
+        }
+        catch
+        {
+            await Swal.ShowErrorToastAsync(
+                "Error al actualizar el estado del cliente.");
+        }
+    }
+
+
+
+    private async Task ShowValidationError(
+        EditContext context)
+    {
+        var errors =
+            context.GetValidationMessages();
+
+        if (errors.Any())
+        {
+            await Swal.ShowErrorToastAsync(
+                errors.First());
+        }
+        else
+        {
+            await Swal.ShowErrorToastAsync(
+                "Por favor, corrige los errores del formulario.");
+        }
+    }
+
+
+    private async Task PerformSearch()
+    {
+        CurrentPage = 1;
+
+        await LoadData();
+    }
+
+
+    private async Task ChangePage(int newPage)
+    {
+        CurrentPage = newPage;
+
+        await LoadData();
+    }
+
+
+    private void CloseModal()
+    {
+        isModalVisible = false;
+
+        isEditing = false;
+
+        currentEditingId = 0;
+    }
+
+
+    public class ClientFormModel
+    {
+        [Required(ErrorMessage = "El documento es obligatorio.")]
+        [MinLength(5, ErrorMessage = "El documento debe tener al menos 5 caracteres.")]
+        [MaxLength(20, ErrorMessage = "El documento no puede tener más de 20 caracteres.")]
+        public string Document { get; set; } = string.Empty;
+
+
+        [Required(ErrorMessage = "El nombre del cliente es obligatorio.")]
+        [MinLength(3, ErrorMessage = "El nombre del cliente debe tener al menos 3 caracteres.")]
+        [MaxLength(100, ErrorMessage = "El nombre del cliente no debe superar los 100 caracteres.")]
+        public string Name { get; set; } = string.Empty;
+
+
+        [MaxLength(150, ErrorMessage = "El correo electrónico no puede exceder los 150 caracteres.")]
+        [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido.")]
+        public string? Email { get; set; }
+
+
+        [Range(
+            0,
+            9999999999,
+            ErrorMessage = "El teléfono no puede ser negativo y debe tener máximo 10 dígitos.")]
+        public long? Phone { get; set; }
+
+
+        [MaxLength(
+            250,
+            ErrorMessage = "La dirección es demasiado larga (máximo 250 caracteres).")]
+        public string? Address { get; set; }
+    }
+}

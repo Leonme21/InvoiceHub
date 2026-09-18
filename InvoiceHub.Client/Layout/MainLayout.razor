@@ -1,0 +1,69 @@
+@inherits LayoutComponentBase
+
+<div class="app-layout">
+
+    @* Mobile backdrop overlay *@
+    @if (sidebarOpen)
+    {
+        <div class="sidebar-backdrop" @onclick="ToggleSidebar"></div>
+    }
+
+    <aside class="sidebar @(sidebarOpen ? "sidebar-open" : "")">
+
+        <div class="sidebar-header">
+            <a href="/" class="brand">
+                <div class="logo-circle">
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+
+                <span class="brand-text">InvoiceHub</span>
+            </a>
+        </div>
+
+        <div class="sidebar-menu">
+            <NavMenu OnNavItemClicked="CloseSidebar" />
+        </div>
+
+    </aside>
+
+    <main class="main-content">
+
+        <header class="top-bar glass-panel">
+            <button class="hamburger-btn" @onclick="ToggleSidebar" aria-label="Abrir menú">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="user-profile">
+                <div class="avatar">Admin</div>
+            </div>
+        </header>
+
+        <article class="content-area page-enter">
+            @Body
+        </article>
+
+    </main>
+
+</div>
+
+@code {
+    private bool sidebarOpen = false;
+
+    private void ToggleSidebar()
+    {
+        sidebarOpen = !sidebarOpen;
+    }
+
+    private void CloseSidebar()
+    {
+        sidebarOpen = false;
+    }
+}

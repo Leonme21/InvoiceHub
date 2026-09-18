@@ -1,0 +1,100 @@
+@if (IsVisible)
+{
+    <div class="modal-overlay" @onclick="HandleBackgroundClick">
+        <div class="modal-content glass-panel" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h3>@Title</h3>
+                <button type="button" class="btn-icon" @onclick="CloseAsync">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                @ChildContent
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string Title { get; set; } = "Modal";
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public bool CloseOnBackgroundClick { get; set; } = true;
+
+    private async Task CloseAsync()
+    {
+        IsVisible = false;
+        await IsVisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task HandleBackgroundClick()
+    {
+        if (CloseOnBackgroundClick)
+        {
+            await CloseAsync();
+        }
+    }
+}
+
+<style>
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: hsla(220, 15%, 10%, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-content {
+        width: 100%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: scale(0.95);
+        animation: scaleUp 0.2s ease-out forwards;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-md) var(--spacing-lg);
+        border-bottom: var(--border-subtle);
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    .modal-body {
+        padding: var(--spacing-lg);
+    }
+
+    @@keyframes scaleUp {
+        to { transform: scale(1); }
+    }
+
+    @@media (max-width: 768px) {
+        .modal-content {
+            max-width: calc(100vw - 2rem);
+            margin: 0 1rem;
+            max-height: 85vh;
+        }
+
+        .modal-body {
+            padding: var(--spacing-md);
+        }
+    }
+</style>

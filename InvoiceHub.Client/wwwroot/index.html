@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InvoiceHub - Premium Billing System</title>
+    <base href="/" />
+    <!-- Fuentes Google: Inter para un look moderno -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="InvoiceHub.Client.styles.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="app">
+        <!-- Premium Loading Screen Initial -->
+        <div class="initial-loader">
+            <div class="spinner"></div>
+            <p>Loading InvoiceHub...</p>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        window.sweetAlertInterop = {
+            showToast: function (type, title) {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: 'hsla(220, 15%, 16%, 0.95)',
+                    color: '#fff',
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+
+                return Toast.fire({
+                    icon: type,
+                    title: title
+                });
+            },
+            confirm: function (title, text, confirmText) {
+                return Swal.fire({
+                    title: title,
+                    html: text,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'hsl(350, 70%, 55%)',
+                    cancelButtonColor: 'hsla(220, 10%, 45%, 0.5)',
+                    confirmButtonText: confirmText,
+                    cancelButtonText: 'Cancelar',
+                    background: 'hsla(220, 15%, 12%, 0.95)',
+                    color: '#fff',
+                    backdrop: 'rgba(0,0,0,0.6)'
+                }).then((result) => {
+                    return result.isConfirmed;
+                });
+            }
+        };
+    </script>
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+
+</html>
